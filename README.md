@@ -24,7 +24,7 @@ yarn
 
 ## Usage
 
-I strongly suggest using 3 terminals
+I strongly suggest using 4 terminals
 
 ```sh
 yarn start // will start hot-reloading Parcel bundler
@@ -32,6 +32,10 @@ yarn start // will start hot-reloading Parcel bundler
 
 ```sh
 yarn type-check // will start Typescript watcher
+```
+
+```sh
+yarn test // will start unit tests watcher
 ```
 
 ... and the last one in your IDE for usual commands, etc...
