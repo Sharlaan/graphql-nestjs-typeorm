@@ -1,52 +1,55 @@
-import { Component, UseGuards, Inject, forwardRef } from '@nestjs/common';
-import { Query, Mutation, Resolver, DelegateProperty, Subscription } from '@nestjs/graphql';
+import { Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 
-import { CatsService } from './cats.service';
-import { CatsGuard } from './cats.guard';
-import { CatEntity } from './cats.entity';
-import { ResolveProperty } from '@nestjs/graphql/decorators/resolvers.decorators';
-import { UsersService } from '../users/users.service';
+import { IUser } from './../users/interfaces/user.interface';
+import CatEntity from './cats.entity';
+import CatsService from './cats.service';
+import { ICat } from './interfaces/cat.interface';
 
-const pubsub = new PubSub();
+const pubSub = new PubSub();
 
 @Resolver('Cat')
-export class CatsResolvers {
-  constructor(
-    @Inject(forwardRef(() => UsersService))
-    private readonly usersService: UsersService,
-    private readonly catsService: CatsService,
-  ) { }
+export default class CatsResolvers {
+  constructor(private readonly catsService: CatsService) {}
 
-  @Query('cats')
-  // @UseGuards(CatsGuard)
-  async getCats() {
-    return await this.catsService.findAll();
+  @Query('getCats')
+  public async getCats() {
+    return this.catsService.findAll();
   }
 
-  @Query('cat')
-  async findOneById(obj, args, context, info): Promise<CatEntity> {
+  @Query('getCat')
+  public async getCat(obj: undefined, args: ICat): Promise<CatEntity | undefined> {
     const { id } = args;
-    return await this.catsService.findOneById(+id);
+    return this.catsService.findOne(+id);
   }
 
-  @ResolveProperty('user')
-  async findUser(cat) {
-    // return await this.catsService.findUserById(cat.userId);
-    return await this.usersService.findOneById(cat.userId);
+  @Query('getCatsByUserId')
+  public async getCatsByUserId(obj: undefined, args: IUser): Promise<CatEntity[]> {
+    const { uid } = args;
+    return this.catsService.findCatsByUserId(uid);
   }
 
   @Mutation('createCat')
-  async create(obj, args: { cat: CatEntity }, context, info): Promise<CatEntity> {
-    const createdCat = await this.catsService.create(args.cat);
-    pubsub.publish('catCreated', { catCreated: createdCat });
+  public async create(obj: undefined, args: ICat): Promise<CatEntity> {
+    const createdCat = await this.catsService.create(args);
+    pubSub.publish('catCreated', { catCreated: createdCat });
     return createdCat;
   }
 
+  @Mutation('updateCat')
+  public async updateCat(obj: undefined, args: { id: number; cat: ICat }): Promise<any> {
+    return this.catsService.update(args.id, args.cat);
+  }
+
+  @Mutation('deleteCat')
+  public async deleteCat(obj: undefined, args: { id: number }): Promise<any> {
+    return this.catsService.delete(args.id);
+  }
+
   @Subscription('catCreated')
-  catCreated() {
+  public catCreated() {
     return {
-      subscribe: () => pubsub.asyncIterator('catCreated'),
+      subscribe: () => pubSub.asyncIterator('catCreated'),
     };
   }
 }

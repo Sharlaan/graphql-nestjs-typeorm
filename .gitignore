@@ -1,21 +1,22 @@
 # dependencies
-/node_modules
+node_modules
 
 # IDE
-/.idea
-/.awcache
-/.vscode
+.idea
+.awcache
+.vscode
+.cache
 
 # misc
-npm-debug.log
-
-# example
-/quick-start
+*.log*
 
 # tests
-/test
-/coverage
-/.nyc_output
+test
+coverage
+.nyc_output
 
 # dist
-/dist
+dist
+
+# private stuff
+settings.ts

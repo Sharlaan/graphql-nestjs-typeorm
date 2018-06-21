@@ -1,13 +1,12 @@
 type Query {
-  users: [User]
-  user(id: ID!): User
-  getCatsByUserId(id: ID!): [Cat]
+  getUsers: [User]
+  getUser(id: ID!): User
 }
 
 type Mutation {
   createUser(user: UserInput!): User
   updateUser(id: ID!, user: UserInput!): Boolean
-  delUser(id: ID!): Boolean
+  deleteUser(id: ID!): Boolean
 }
 
 type User {
@@ -17,7 +16,6 @@ type User {
   email: String
   cats: [Cat]
 }
-
 
 input UserInput {
   username: String!

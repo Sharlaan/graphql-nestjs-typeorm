@@ -1,14 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class CatEntity {
-  @PrimaryGeneratedColumn() id: number;
+export default class CatEntity {
+  @PrimaryGeneratedColumn() public id!: number;
 
   @Column({ length: 50 })
-  name: string;
+  public name!: string;
 
-  @Column() age: number;
+  @Column() public age!: number;
 
-  @Column() userId: number;
-
+  @Column() public userId!: number;
 }

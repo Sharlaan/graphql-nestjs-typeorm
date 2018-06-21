@@ -1,45 +1,45 @@
-import {
-  Module,
-  MiddlewaresConsumer,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
-import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
-import { GraphQLModule, GraphQLFactory } from '@nestjs/graphql';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { GraphQLFactory, GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { graphiqlFastify, graphqlFastify } from 'apollo-server-fastify';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-import { CatsModule } from './cats/cats.module';
-import { SubscriptionsModule } from './subscriptions/subscriptions.module';
-import { UsersModule } from './users/users.module';
+import { db, main } from '../settings';
+
+import CatsModule from './cats/cats.module';
+import SubscriptionsModule from './subscriptions/subscriptions.module';
+import SubscriptionsService from './subscriptions/subscriptions.service';
+import UsersModule from './users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(), SubscriptionsModule.forRoot(), UsersModule, CatsModule, GraphQLModule],
+  imports: [
+    TypeOrmModule.forRoot(db as PostgresConnectionOptions),
+    SubscriptionsModule.forRoot(),
+    UsersModule,
+    CatsModule,
+    GraphQLModule,
+  ],
 })
 export class ApplicationModule implements NestModule {
   constructor(
-    private readonly subscriptionsModule: SubscriptionsModule,
-    private readonly graphQLFactory: GraphQLFactory,
-  ) { }
+    private readonly subscriptionsService: SubscriptionsService,
+    private readonly graphQLFactory: GraphQLFactory
+  ) {}
 
-  configure(consumer: MiddlewaresConsumer) {
-    const schema = this.createSchema();
-    this.subscriptionsModule.createSubscriptionServer(schema);
+  public configure(consumer: MiddlewareConsumer) {
+    const typeDefs = this.graphQLFactory.mergeTypesByPaths('./**/*.graphql');
+    const schema = this.graphQLFactory.createSchema({ typeDefs });
+    this.subscriptionsService.createSubscriptionServer(schema);
 
     consumer
       .apply(
-      graphiqlExpress({
-        endpointURL: '/graphql',
-        subscriptionsEndpoint: `ws://localhost:3001/subscriptions`,
-      }),
-    )
-      .forRoutes({ path: '/graphiql', method: RequestMethod.GET })
-      .apply(graphqlExpress(req => ({ schema, rootValue: req })))
-      .forRoutes({ path: '/graphql', method: RequestMethod.ALL });
-  }
-
-  createSchema() {
-    const typeDefs = this.graphQLFactory.mergeTypesByPaths('./**/*.graphql');
-    const schema = this.graphQLFactory.createSchema({ typeDefs });
-    return schema;
+        graphiqlFastify({
+          endpointURL: '/graphql',
+          subscriptionsEndpoint: `ws://localhost:${main.subscriptionsPort}/subscriptions`,
+        })
+      )
+      .forRoutes('/graphiql')
+      .apply(graphqlFastify(req => ({ schema, rootValue: req })))
+      .forRoutes('/graphql');
   }
 }

@@ -1,39 +1,34 @@
-import { Component, forwardRef, Inject } from "@nestjs/common";
-import { Cat } from "../cats/interfaces/cat.interface";
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserEntity } from "./users.entity";
-import { CatsService } from "../cats/cats.service";
-import { CatEntity } from "../cats/cats.entity";
+import UserEntity from './users.entity';
 
-@Component()
-export class UsersService {
-
+@Injectable()
+export default class UsersService {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
-  ) { }
+    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>
+  ) {}
 
-  create(user: UserEntity): Promise<UserEntity> {
+  public create(user: UserEntity): Promise<UserEntity> {
     return this.userRepository.save(user);
   }
 
-  findAll(): Promise<UserEntity[]> {
+  public findAll(): Promise<UserEntity[]> {
     return this.userRepository.find();
   }
 
-  findOneById(uid: number): Promise<UserEntity> {
-    return this.userRepository.findOneById(uid);
+  public findOne(uid: number): Promise<UserEntity | undefined> {
+    return this.userRepository.findOne({ uid });
   }
 
-  updateOneById(uid: number, user: UserEntity) {
+  public update(uid: number, user: UserEntity) {
     user = Object.setPrototypeOf(user, {});
-    return this.userRepository.updateById(uid, user);
+    return this.userRepository.update(uid, user);
     // const qb = this.userRepository.createQueryBuilder('user');
     // return qb.update(UserEntity).setParameters(user).where("user.id = :id", { id: uid }).execute();
   }
 
-  delOneById(uid: number) {
-    return this.userRepository.deleteById(uid);
+  public delete(uid: number) {
+    return this.userRepository.delete(uid);
   }
 }

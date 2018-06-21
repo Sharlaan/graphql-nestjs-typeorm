@@ -1,4 +1,4 @@
-export interface Cat {
+export interface ICat {
   readonly id: number;
   readonly name: string;
   readonly age: number;

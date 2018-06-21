@@ -1,22 +1,22 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "allowJs": true,
     "declaration": false,
-    "noImplicitAny": false,
-    "removeComments": true,
-    "noLib": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es6",
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true, // importing helper functions from tslib
+    "module": "commonjs", // "es2015" for tree-shaking
+    "noEmitHelpers": true, // disable emitting inline helper functions
+    "noImplicitAny": true,
+    "noLib": false,
+    "outDir": "./dist",
+    "removeComments": true,
+    "skipLibCheck": true,
     "sourceMap": true,
-    "allowJs": true,
-    "outDir": "./dist"
+    "strict": true,
+    "target": "es2017"
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.spec.ts"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }

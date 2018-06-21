@@ -1,10 +1,13 @@
 type Query {
-  cats: [Cat]
-  cat(id: ID!): Cat
+  getCats: [Cat]
+  getCat(id: ID!): Cat
+  getCatsByUserId(id: ID!): [Cat]
 }
 
 type Mutation {
   createCat(cat: CatInput!): Cat
+  updateCat(id: ID!, Cat: CatInput!): Boolean
+  deleteCat(id: ID!): Boolean
 }
 
 type Subscription {
